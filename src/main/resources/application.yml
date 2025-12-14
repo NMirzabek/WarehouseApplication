@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/warehouse_db
+    username: postgres
+    password: root123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+logging:
+  level:
+    org.hibernate.SQL: debug            # SQL log
+    org.hibernate.orm.jdbc.bind: trace  # parametrlar log (xohlasangiz keyin o'chirasiz)
+
+# Telegram bot konfiguratsiyasi
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN:CHANGE_ME}   # ENV variable orqali berasiz, GitHubga qo'ymang
+  chat-id: ${TELEGRAM_CHAT_ID:CHANGE_ME}       # bitta global chat ID bo'ladi
+
+# Yaroqlilik muddati ogohlantirish sozlamasi
+notification:
+  expiry-days-before: 7    # masalan, muddati tugashidan 7 kun oldin xabar yuborilsin
