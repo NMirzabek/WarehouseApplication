@@ -4,14 +4,12 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 
-
 data class ApiResponse<T>(
     val success: Boolean,
     val message: String? = null,
     val data: T? = null,
     val errors: List<String>? = null
 )
-
 
 data class WarehouseCreateRequest(
     val name: String
@@ -29,7 +27,6 @@ data class WarehouseResponse(
     val createdAt: Instant?,
     val updatedAt: Instant?
 )
-
 
 data class WorkerCreateRequest(
     val firstName: String,
@@ -59,7 +56,6 @@ data class WorkerResponse(
     val createdAt: Instant?,
     val updatedAt: Instant?
 )
-
 
 data class CategoryCreateRequest(
     val name: String,
@@ -95,7 +91,6 @@ data class UnitResponse(
     val active: Boolean
 )
 
-
 data class CurrencyCreateRequest(
     val name: String
 )
@@ -110,7 +105,6 @@ data class CurrencyResponse(
     val name: String,
     val active: Boolean
 )
-
 
 data class SupplierCreateRequest(
     val name: String,
@@ -130,25 +124,35 @@ data class SupplierResponse(
     val active: Boolean
 )
 
-
+/**
+ * CHANGED: imageUrls bu yerda bo'lmaydi.
+ * Product yaratish/yangilash rasmsiz bo'ladi, rasm alohida upload endpoint orqali keladi.
+ */
 data class ProductCreateRequest(
     val name: String,
     val categoryId: Long,
     val unitId: Long,
     val supplierId: Long,
-    val imageUrls: List<String> = emptyList()
+    val currentSalePrice: BigDecimal? = null
 )
 
+/**
+ * CHANGED: imageUrls bu yerda bo'lmaydi.
+ * Rasmni yangilash/almashtirish ham alohida endpoint orqali qilinadi.
+ */
 data class ProductUpdateRequest(
     val name: String,
     val categoryId: Long,
     val unitId: Long,
     val supplierId: Long,
     val active: Boolean,
-    val imageUrls: List<String> = emptyList()
+    val currentSalePrice: BigDecimal? = null
 )
 
-
+/**
+ * ProductResponse'da imageUrls qoladi.
+ * Bu url lar backend tomonidan product_images -> files orqali yig'ilib qaytariladi.
+ */
 data class ProductResponse(
     val id: Long?,
     val name: String,
@@ -160,9 +164,9 @@ data class ProductResponse(
     val supplierName: String,
     val productCode: String,
     val imageUrls: List<String>,
+    val currentSalePrice: BigDecimal,
     val active: Boolean
 )
-
 
 data class StockEntryItemCreateRequest(
     val productId: Long,
@@ -215,7 +219,7 @@ data class SaleItemCreateRequest(
     val productId: Long,
     val unitId: Long,
     val quantity: BigDecimal,
-    val price: BigDecimal,
+    val price: BigDecimal? = null,
     val currencyId: Long
 )
 
@@ -251,7 +255,6 @@ data class SaleResponse(
     val updatedAt: Instant?
 )
 
-
 data class ProductStockResponse(
     val id: Long?,
     val warehouseId: Long,
@@ -261,7 +264,6 @@ data class ProductStockResponse(
     val quantity: BigDecimal,
     val active: Boolean
 )
-
 
 data class DailyStockInProductDto(
     val productId: Long,
@@ -321,4 +323,20 @@ data class NotificationSettingResponse(
     val key: String,
     val daysBefore: Long,
     val active: Boolean
+)
+
+
+data class FileAssetResponse(
+    val id: Long?,
+    val url: String,
+    val originalName: String,
+    val contentType: String,
+    val sizeBytes: Long,
+    val createdAt: Instant?
+)
+
+
+data class ProductImageUploadResponse(
+    val productId: Long,
+    val uploaded: List<FileAssetResponse>
 )

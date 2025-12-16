@@ -11,7 +11,6 @@ interface WarehouseRepository : JpaRepository<Warehouse, Long> {
 
 interface WorkerRepository : JpaRepository<Worker, Long> {
     fun findAllByActiveTrue(): List<Worker>
-
     fun findByEmployeeCode(employeeCode: String): Worker?
 }
 
@@ -33,16 +32,21 @@ interface SupplierRepository : JpaRepository<Supplier, Long> {
 
 interface ProductRepository : JpaRepository<Product, Long> {
     fun findAllByActiveTrue(): List<Product>
-
     fun findByProductCode(productCode: String): Product?
 }
 
-interface ProductImageRepository  : JpaRepository<Product, Long>
+/** NEW: file metadatalari (files jadvali) */
+interface FileAssetRepository : JpaRepository<FileAsset, Long> {
+    fun findByStorageKey(storageKey: String): FileAsset?
+}
+
+/** FIXED: product_images jadvali uchun repository */
+interface ProductImageRepository : JpaRepository<ProductImage, Long> {
+    fun findAllByProductId(productId: Long): List<ProductImage>
+}
 
 interface StockEntryRepository : JpaRepository<StockEntry, Long> {
-
     fun findByDate(date: LocalDate): List<StockEntry>
-
     fun findByWarehouseId(warehouseId: Long): List<StockEntry>
 }
 
@@ -57,7 +61,6 @@ interface StockEntryItemRepository : JpaRepository<StockEntryItem, Long> {
         """
     )
     fun findActiveItemsByEntryDate(@Param("date") date: LocalDate): List<StockEntryItem>
-
 
     @Query(
         """
@@ -75,10 +78,7 @@ interface StockEntryItemRepository : JpaRepository<StockEntryItem, Long> {
 }
 
 interface SaleRepository : JpaRepository<Sale, Long> {
-
-
     fun findByDate(date: LocalDate): List<Sale>
-
     fun findByWarehouseId(warehouseId: Long): List<Sale>
 }
 
@@ -95,7 +95,6 @@ interface SaleItemRepository : JpaRepository<SaleItem, Long> {
     fun findActiveItemsBySaleDate(@Param("date") date: LocalDate): List<SaleItem>
 }
 
-
 interface ProductStockRepository : JpaRepository<ProductStock, Long> {
 
     fun findByWarehouseIdAndProductId(
@@ -109,14 +108,9 @@ interface ProductStockRepository : JpaRepository<ProductStock, Long> {
 }
 
 interface NotificationSettingRepository : JpaRepository<NotificationSetting, Long> {
-
     fun findByKey(key: String): NotificationSetting?
 }
 
 interface ExpiryNotificationRepository : JpaRepository<ExpiryNotification, Long> {
-
-    fun existsByStockEntryItemIdAndChatId(
-        stockEntryItemId: Long,
-        chatId: String
-    ): Boolean
+    fun existsByStockEntryItemIdAndChatId(stockEntryItemId: Long, chatId: String): Boolean
 }

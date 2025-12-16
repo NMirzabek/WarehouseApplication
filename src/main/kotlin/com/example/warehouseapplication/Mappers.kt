@@ -1,5 +1,6 @@
 package com.example.warehouseapplication
 
+import java.time.Instant
 
 fun Warehouse.toResponse(): WarehouseResponse =
     WarehouseResponse(
@@ -55,7 +56,14 @@ fun Supplier.toResponse(): SupplierResponse =
         active = active
     )
 
-
+/**
+ * IMPORTANT:
+ * imageUrls endi ProductImage.url dan emas,
+ * ProductImage.file.storageKey dan olinadi.
+ *
+ * storageKey misol: "products/1700000000_15.jpg"
+ * clientga qaytadigan url: "/files/{storageKey}"
+ */
 fun Product.toResponse(): ProductResponse =
     ProductResponse(
         id = id,
@@ -67,10 +75,10 @@ fun Product.toResponse(): ProductResponse =
         supplierId = supplier.id ?: 0L,
         supplierName = supplier.name,
         productCode = productCode,
-        imageUrls = images.map { it.url },
+        imageUrls = images.map { "/files/${it.file.storageKey}" },
+        currentSalePrice = currentSalePrice,
         active = active
     )
-
 
 fun StockEntryItem.toResponse(): StockEntryItemResponse =
     StockEntryItemResponse(
@@ -103,7 +111,6 @@ fun StockEntry.toResponse(): StockEntryResponse =
         updatedAt = updatedAt
     )
 
-
 fun SaleItem.toResponse(): SaleItemResponse =
     SaleItemResponse(
         id = id,
@@ -131,7 +138,6 @@ fun Sale.toResponse(): SaleResponse =
         updatedAt = updatedAt
     )
 
-
 fun ProductStock.toResponse(): ProductStockResponse =
     ProductStockResponse(
         id = id,
@@ -143,11 +149,25 @@ fun ProductStock.toResponse(): ProductStockResponse =
         active = active
     )
 
-
 fun NotificationSetting.toResponse(): NotificationSettingResponse =
     NotificationSettingResponse(
         id = id,
         key = key,
         daysBefore = daysBefore,
         active = active
+    )
+
+/**
+ * FileAsset response:
+ * FileAsset DBda storageKey saqlaydi,
+ * clientga esa /files/{storageKey} ko'rinishida url qaytariladi.
+ */
+fun FileAsset.toResponse(): FileAssetResponse =
+    FileAssetResponse(
+        id = id,
+        url = "/files/$storageKey",
+        originalName = originalName,
+        contentType = contentType,
+        sizeBytes = sizeBytes,
+        createdAt = createdAt
     )
