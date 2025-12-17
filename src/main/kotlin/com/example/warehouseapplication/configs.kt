@@ -15,8 +15,7 @@ class WebConfig(
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         val basePath = Path.of(uploadDir).toAbsolutePath().normalize()
 
-        // MUHIM: Windows uchun to‘g‘ri "file:/C:/..." URI bo‘lishi kerak
-        val location = basePath.toUri().toString() // masalan: file:/C:/project/uploads/
+        val location = basePath.toUri().toString()
 
         registry.addResourceHandler("/files/**")
             .addResourceLocations(location)

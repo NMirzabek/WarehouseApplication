@@ -12,6 +12,9 @@ interface WarehouseRepository : JpaRepository<Warehouse, Long> {
 interface WorkerRepository : JpaRepository<Worker, Long> {
     fun findAllByActiveTrue(): List<Worker>
     fun findByEmployeeCode(employeeCode: String): Worker?
+    fun findByEmployeeCodeAndActiveTrue(employeeCode: String): Worker?
+
+    fun existsByEmployeeCode(employeeCode: String): Boolean
 }
 
 interface CategoryRepository : JpaRepository<Category, Long> {
@@ -35,12 +38,10 @@ interface ProductRepository : JpaRepository<Product, Long> {
     fun findByProductCode(productCode: String): Product?
 }
 
-/** NEW: file metadatalari (files jadvali) */
 interface FileAssetRepository : JpaRepository<FileAsset, Long> {
     fun findByStorageKey(storageKey: String): FileAsset?
 }
 
-/** FIXED: product_images jadvali uchun repository */
 interface ProductImageRepository : JpaRepository<ProductImage, Long> {
     fun findAllByProductId(productId: Long): List<ProductImage>
 }

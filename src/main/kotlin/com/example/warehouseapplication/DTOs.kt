@@ -124,10 +124,6 @@ data class SupplierResponse(
     val active: Boolean
 )
 
-/**
- * CHANGED: imageUrls bu yerda bo'lmaydi.
- * Product yaratish/yangilash rasmsiz bo'ladi, rasm alohida upload endpoint orqali keladi.
- */
 data class ProductCreateRequest(
     val name: String,
     val categoryId: Long,
@@ -136,10 +132,6 @@ data class ProductCreateRequest(
     val currentSalePrice: BigDecimal? = null
 )
 
-/**
- * CHANGED: imageUrls bu yerda bo'lmaydi.
- * Rasmni yangilash/almashtirish ham alohida endpoint orqali qilinadi.
- */
 data class ProductUpdateRequest(
     val name: String,
     val categoryId: Long,
@@ -149,10 +141,6 @@ data class ProductUpdateRequest(
     val currentSalePrice: BigDecimal? = null
 )
 
-/**
- * ProductResponse'da imageUrls qoladi.
- * Bu url lar backend tomonidan product_images -> files orqali yig'ilib qaytariladi.
- */
 data class ProductResponse(
     val id: Long?,
     val name: String,
@@ -339,4 +327,32 @@ data class FileAssetResponse(
 data class ProductImageUploadResponse(
     val productId: Long,
     val uploaded: List<FileAssetResponse>
+)
+
+data class LoginRequest(
+    val employeeCode: String,
+    val password: String
+)
+
+data class LoginResponse(
+    val token: String,
+    val workerId: Long,
+    val employeeCode: String,
+    val role: String,
+    val warehouseId: Long
+)
+
+data class RegisterRequest(
+    val firstName: String,
+    val lastName: String,
+    val phone: String,
+    val password: String,
+    val warehouseId: Long,
+    val role: Role? = null
+)
+
+data class RegisterResponse(
+    val workerId: Long,
+    val employeeCode: String,
+    val role: String
 )

@@ -53,6 +53,10 @@ open class Worker(
     @Column(nullable = false)
     var passwordHash: String,
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var role: Role = Role.WORKER,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id", nullable = false)
     var warehouse: Warehouse
@@ -120,7 +124,6 @@ open class Product(
 
 ) : BaseEntity() {
 
-    // CHANGED: endi ProductImage ichida url yo'q, u FileAsset bilan bog'laydi
     @OneToMany(
         mappedBy = "product",
         cascade = [CascadeType.ALL],
@@ -129,10 +132,6 @@ open class Product(
     var images: MutableList<ProductImage> = mutableListOf()
 }
 
-/**
- * CHANGED: File metadatalari endi product_images ichida emas,
- * alohida "files" jadvalida saqlanadi (mentor tavsiyasi).
- */
 @Entity
 @Table(
     name = "files",
@@ -156,10 +155,7 @@ open class FileAsset(
 
 ) : BaseEntity()
 
-/**
- * CHANGED: product_images jadvali endi faqat link table:
- * product_id + file_id (url yo'q).
- */
+
 @Entity
 @Table(
     name = "product_images",

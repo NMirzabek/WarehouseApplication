@@ -1,17 +1,11 @@
 package com.example.warehouseapplication
 
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.Resource
-import org.springframework.core.io.UrlResource
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.nio.file.Path
 import java.time.LocalDate
-import kotlin.io.path.exists
 
 @RestController
 @RequestMapping("/api/v1/warehouses")
@@ -159,15 +153,7 @@ class ProductsController(
     fun getAllActive(): ApiResponse<List<ProductResponse>> =
         productService.getAllActive()
 
-    /**
-     * NEW (mentor logic):
-     * Product yaratish/yangilashda rasm kelmaydi.
-     * Rasm alohida endpoint orqali multipart/form-data bilan yuklanadi.
-     *
-     * Postman:
-     *  POST /api/v1/products/{productId}/images
-     *  Body -> form-data -> key: files (File), bir nechta file qo'shish mumkin.
-     */
+
     @PostMapping(
         "/{productId}/images",
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
@@ -235,48 +221,16 @@ class NotificationSettingsController(
         notificationSettingService.update(request)
 }
 
-/**
- * NEW:
- * Client ProductResponse ichida olgan imageUrls'lar shu endpoint orqali ochiladi.
- *
- * Misol:
- *  imageUrls: [ "/files/products/10/1700000000_10.jpg" ]
- *  brauzer yoki postman:
- *    GET http://localhost:8080/files/products/10/1700000000_10.jpg
- */
-//@RestController
-//class FilesController(
-//    @Value("\${app.upload-dir:uploads}")
-//    private val uploadDir: String
-//) {
-//    @GetMapping("/files/{*path}")
-//    fun getFile(@PathVariable path: String): ResponseEntity<Resource> {
-//        val basePath = Path.of(uploadDir).normalize().toAbsolutePath()
-//        val filePath = basePath.resolve(path).normalize()
-//
-//        // path traversal himoya
-//        if (!filePath.startsWith(basePath)) {
-//            return ResponseEntity.badRequest().build()
-//        }
-//
-//        if (!filePath.exists()) {
-//            return ResponseEntity.notFound().build()
-//        }
-//
-//        val resource = UrlResource(filePath.toUri())
-//        if (!resource.exists() || !resource.isReadable) {
-//            return ResponseEntity.notFound().build()
-//        }
-//
-//        val contentType = try {
-//            java.nio.file.Files.probeContentType(filePath) ?: "application/octet-stream"
-//        } catch (_: Exception) {
-//            "application/octet-stream"
-//        }
-//
-//        return ResponseEntity.ok()
-//            .header(HttpHeaders.CONTENT_TYPE, contentType)
-//            .header(HttpHeaders.CACHE_CONTROL, "max-age=3600")
-//            .body(resource)
-//    }
-//}
+@RestController
+@RequestMapping("/api/v1/auth")
+class AuthController(
+    private val authService: AuthService
+) {
+    @PostMapping("/login")
+    fun login(@RequestBody req: LoginRequest): ApiResponse<LoginResponse> =
+        authService.login(req)
+
+    @PostMapping("/register")
+    fun register(@RequestBody req: RegisterRequest): ApiResponse<RegisterResponse> =
+        authService.register(req)
+}

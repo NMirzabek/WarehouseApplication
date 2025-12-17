@@ -1,7 +1,5 @@
 package com.example.warehouseapplication
 
-import java.time.Instant
-
 fun Warehouse.toResponse(): WarehouseResponse =
     WarehouseResponse(
         id = id,
@@ -56,14 +54,6 @@ fun Supplier.toResponse(): SupplierResponse =
         active = active
     )
 
-/**
- * IMPORTANT:
- * imageUrls endi ProductImage.url dan emas,
- * ProductImage.file.storageKey dan olinadi.
- *
- * storageKey misol: "products/1700000000_15.jpg"
- * clientga qaytadigan url: "/files/{storageKey}"
- */
 fun Product.toResponse(): ProductResponse =
     ProductResponse(
         id = id,
@@ -157,11 +147,6 @@ fun NotificationSetting.toResponse(): NotificationSettingResponse =
         active = active
     )
 
-/**
- * FileAsset response:
- * FileAsset DBda storageKey saqlaydi,
- * clientga esa /files/{storageKey} ko'rinishida url qaytariladi.
- */
 fun FileAsset.toResponse(): FileAssetResponse =
     FileAssetResponse(
         id = id,

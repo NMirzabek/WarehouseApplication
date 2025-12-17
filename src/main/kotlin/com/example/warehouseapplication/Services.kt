@@ -2,6 +2,7 @@ package com.example.warehouseapplication
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
@@ -14,7 +15,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.io.path.createDirectories
-import kotlin.io.path.exists
 
 @Service
 class WarehouseService(
@@ -205,7 +205,6 @@ class UnitService(
 class CurrencyService(
     private val currencyRepository: CurrencyRepository
 ) {
-    // CHANGED: naming warning fix
     private val allowedCurrency = "UZS"
 
     @Transactional
@@ -321,7 +320,6 @@ class ProductService(
         val supplier = supplierRepository.findById(request.supplierId)
             .orElseThrow { NotFoundException("Supplier not found with id=${request.supplierId}") }
 
-        // CHANGED: Product create endi rasmsiz bo'ladi (mentor logikasi).
         val product = Product(
             name = request.name,
             category = category,
@@ -358,7 +356,6 @@ class ProductService(
 
         request.currentSalePrice?.let { product.currentSalePrice = it }
 
-        // CHANGED: rasmlar bu yerda update qilinmaydi (alohida upload endpoint bo'ladi).
         val saved = productRepository.save(product)
         return ApiResponse(success = true, message = "Product updated", data = saved.toResponse())
     }
@@ -381,9 +378,6 @@ class ProductService(
     }
 }
 
-/**
- * NEW: Faylni serverga saqlash (UUID ishlatmaymiz).
- */
 @Service
 class FileStorageService(
     @Value("\${app.upload-dir:uploads}")
@@ -401,7 +395,6 @@ class FileStorageService(
         val basePath = Path.of(uploadDir).normalize().toAbsolutePath()
         val targetPath = basePath.resolve(relativeKey).normalize()
 
-        // uploads/products/{productId}/ papka
         targetPath.parent.createDirectories()
 
         Files.copy(file.inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING)
@@ -409,9 +402,6 @@ class FileStorageService(
     }
 }
 
-/**
- * NEW: DBga FileAsset yozish.
- */
 @Service
 class FileAssetService(
     private val fileAssetRepository: FileAssetRepository
@@ -428,9 +418,6 @@ class FileAssetService(
     }
 }
 
-/**
- * NEW: product_images link yaratish (product <-> file).
- */
 @Service
 class ProductImageService(
     private val productRepository: ProductRepository,
@@ -449,9 +436,6 @@ class ProductImageService(
     }
 }
 
-/**
- * NEW: Upload flow orchestrator.
- */
 @Service
 class ProductImageUploadService(
     private val fileStorageService: FileStorageService,
@@ -703,7 +687,6 @@ class DashboardService(
 class NotificationSettingService(
     private val notificationSettingRepository: NotificationSettingRepository
 ) {
-    // CHANGED: naming warning fix
     private val defaultKey = "EXPIRY_DAYS_BEFORE"
 
     @Transactional
@@ -802,6 +785,73 @@ class ExpiryCheckService(
                     sentAt = Instant.now()
                 )
             )
+        }
+    }
+}
+
+@Service
+open class AuthService(
+    private val workerRepository: WorkerRepository,
+    private val warehouseRepository: WarehouseRepository,
+    private val passwordEncoder: PasswordEncoder,
+    private val jwtService: JwtService
+) {
+
+    open fun login(req: LoginRequest): ApiResponse<LoginResponse> {
+        val worker = workerRepository.findByEmployeeCodeAndActiveTrue(req.employeeCode)
+            ?: return ApiResponse(success = false, message = "Invalid credentials")
+
+        if (!passwordEncoder.matches(req.password, worker.passwordHash)) {
+            return ApiResponse(success = false, message = "Invalid credentials")
+        }
+
+        val token = jwtService.generate(worker)
+        return ApiResponse(
+            success = true,
+            message = "Login successful",
+            data = LoginResponse(
+                token = token,
+                workerId = worker.id!!,
+                employeeCode = worker.employeeCode,
+                role = worker.role.name,
+                warehouseId = worker.warehouse.id!!
+            )
+        )
+    }
+
+    open fun register(req: RegisterRequest): ApiResponse<RegisterResponse> {
+        val warehouse = warehouseRepository.findById(req.warehouseId)
+            .orElseThrow { RuntimeException("Warehouse not found") }
+
+        val employeeCode = generateEmployeeCode()
+
+        val worker = Worker(
+            firstName = req.firstName.trim(),
+            lastName = req.lastName.trim(),
+            phone = req.phone.trim(),
+            employeeCode = employeeCode,
+            passwordHash = passwordEncoder.encode(req.password),
+            role = req.role ?: Role.WORKER,
+            warehouse = warehouse
+        )
+
+        val saved = workerRepository.save(worker)
+
+        return ApiResponse(
+            success = true,
+            message = "Registered successfully",
+            data = RegisterResponse(
+                workerId = saved.id!!,
+                employeeCode = saved.employeeCode,
+                role = saved.role.name
+            )
+        )
+    }
+
+    private fun generateEmployeeCode(): String {
+        while (true) {
+            val code = "EMP" + (100000..999999).random()
+            if (!workerRepository.existsByEmployeeCode(code)) return code
         }
     }
 }
